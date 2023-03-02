@@ -2,6 +2,7 @@
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 using Rocket.Unturned;
+using Rocket.Unturned.Chat;
 using Rocket.Unturned.Events;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -58,10 +59,12 @@ namespace FQPlayerDragging
         {
             if (gesture == UnturnedPlayerEvents.PlayerGesture.SurrenderStart && player.HasPermission(Configuration.Instance.dragPermission))
             {
-                var patient = UnturnedPlayer.FromSteamPlayer(Provider.clients.FirstOrDefault(x => Vector3.Distance(UnturnedPlayer.FromSteamPlayer(x).Position, player.Position) < Configuration.Instance.dragStartDistance));
+                var patient = UnturnedPlayer.FromSteamPlayer(Provider.clients.FirstOrDefault(x => x.playerID.steamID.m_SteamID != player.CSteamID.m_SteamID && Vector3.Distance(UnturnedPlayer.FromSteamPlayer(x).Position, player.Position) <= Configuration.Instance.dragStartDistance));
 
                 if (patient == null) return;
+
                 if (patient.Player.animator.gesture != EPlayerGesture.ARREST_START) return;
+
                 if (draggedPlayers.ContainsValue(patient.CSteamID.m_SteamID))
                 {
                     ChatManager.serverSendMessage(Translate("StoppedDragging"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, Configuration.Instance.serverIcon, true);
